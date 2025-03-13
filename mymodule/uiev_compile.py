@@ -5,9 +5,9 @@ import sys
 import platform
 import os
 
+# includes NumPy automatically if installed
 try:
     import numpy as np
-
     numpyincludefolder = np.get_include()
 except Exception:
     numpyincludefolder = ""
@@ -15,7 +15,7 @@ except Exception:
 iswindows = "win" in platform.platform().lower()
 name = "uiev"
 
-Options.docstrings = False
+Options.docstrings = True
 Options.embed_pos_in_docstring = False
 Options.generate_cleanup_code = False
 Options.clear_to_none = True
@@ -26,6 +26,8 @@ Options.error_on_unknown_names = True
 Options.error_on_uninitialized = True
 Options.convert_range = True
 Options.cache_builtins = True
+
+# Makes sense on Windows?!?!
 if iswindows:
     Options.gcc_branch_hints = False
 else:
@@ -49,12 +51,12 @@ configdict = {
     if numpyincludefolder
     else [],
     "define_macros": [
+        # Use only if you know what you are doing
         # ("NPY_NO_DEPRECATED_API", 1),
         # ("CYTHON_ASSUME_SAFE_MACROS", 0),
         # ("CYTHON_AVOID_BORROWED_REFS", 0),
         # ("CYTHON_CLINE_IN_TRACEBACK", 0),
         # ("CYTHON_COMPILING_IN_CPYTHON", 0),
-        # ("CYTHON_COMPILING_IN_GRAAL", 0),
         # ("CYTHON_COMPILING_IN_GRAAL", 1),
         # ("CYTHON_COMPILING_IN_LIMITED_API", 0),
         # ("CYTHON_COMPILING_IN_NOGIL", 0),
@@ -90,6 +92,7 @@ configdict = {
     "extra_objects": [],
     "extra_compile_args": [
         "/std:c++20",
+        # /openmp
     ]
     if iswindows
     else [
@@ -97,6 +100,7 @@ configdict = {
         "-mtune=native",
         "-std=c++2a",
         "-pthread",
+        # -fopenmp
     ],
     "extra_link_args": [],
     "export_symbols": [],
@@ -106,22 +110,22 @@ configdict = {
     "optional": None,
 }
 compiler_directives = {
-    "binding": False,
-    "boundscheck": True,
-    "wraparound": True,
-    "initializedcheck": True,
-    "nonecheck": True,
-    "overflowcheck": True,
+    "binding": False, # True for more speed
+    "boundscheck": True, # False for more speed
+    "wraparound": True, # False for more speed
+    "initializedcheck": True, # False for more speed
+    "nonecheck": True, # False for more speed
+    "overflowcheck": True, # False for more speed
     "overflowcheck.fold": True,
     "embedsignature": True,
     "embedsignature.format": "c",  # (c / python / clinic)
     "cdivision": True,
     "cdivision_warnings": True,
     "cpow": True,
-    "always_allow_keywords": True,
+    "always_allow_keywords": True, # False for a little more speed, but no keywords!!
     "c_api_binop_methods": False,
     "profile": False,
-    "linetrace": False,
+    "linetrace": True, # False for more speed
     "infer_types": True,
     "language_level": 3,  # (2/3/3str)
     "c_string_type": "bytes",  # (bytes / str / unicode)
@@ -134,7 +138,7 @@ compiler_directives = {
     "cpp_locals": False,
     "legacy_implicit_noexcept": False,
     "optimize.use_switch": True,
-    "optimize.unpack_method_calls": True,
+    "optimize.unpack_method_calls": True, # False for smaller file
     "warn.undeclared": True,  # (default False)
     "warn.unreachable": True,  # (default True)
     "warn.maybe_uninitialized": True,  # (default False)
